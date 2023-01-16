@@ -1,22 +1,19 @@
 import express, { Application, Request, Response } from "express";
-import cors from "cors";
-import ScrapController from "./controllers/ScrapController";
-
 const app: Application = express();
-const port = process.env.PORT || 8080;
+import ScrapController from "./controllers/ScrapController";
+// import fs from 'fs-extra';
 
-//middleware
 //middleware for body-parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 
-app.get('/',async (req:Request,res:Response)=>{
-    await ScrapController(6514047864);
-    res.send("Web scrapper created by cjreads665");
-})
+app.get("/", (req: Request, res: Response) => {
+    ScrapController(6514047860);
+    res.send("Server for seat featching");
+});
 
-//messages after hosting
+const port = process.env.PORT || 8080;
+
 try {
   app.listen(port, (): void => {
     console.log(`Connected successfully on port ${port}`);
