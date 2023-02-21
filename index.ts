@@ -7,8 +7,10 @@ import ScrapController from "./controllers/ScrapController";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req: Request, res: Response) => {
-    ScrapController(6514047860);
+app.get("/", async (req: Request, res: Response) => {
+    let k= await ScrapController(6715741541);
+    console.log(k);
+    // res.json(k)
     res.send("Server for seat featching");
 });
 

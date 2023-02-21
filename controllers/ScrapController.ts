@@ -27,13 +27,31 @@ export default (async function (pnr:number) {
             ]
         });
         const page = await browser.newPage();
-        await page.goto(`https://www.confirmtkt.com/pnr-status/${pnr}`);
-        await page.screenshot({path : 'xyz.png'})
-        const text = await page.evaluate(className => {
-            return document.getElementsByClassName(className)[0].textContent;
-          }, 'confirm-c');
-        await browser.close();
-        console.log(text?.split(' '));
+        await page.goto(`https://www.confirmtkt.com/pnr-status/${pnr}`); //going to the url and fetching the status
+        await page.screenshot({path : 'xyz.png'}) //taking a screenshot
+
+        
+        try{
+
+            // data-bind="text: BookingStatus" <- to target for status
+            const text = await page.evaluate(className => {
+                /**currently trying to get all the seats instead of one */
+                return document.querySelectorAll(className)[0].textContent;
+              }, '[data-bind="text: BookingStatus"]'); //getting all the elements with the classname in an array 
+            await browser.close();
+            const seats = text?.split(' ')
+            return {
+                status : 200,
+                message : seats
+            }
+        } catch(err){
+            // console.log(5);
+            await browser.close();
+            return {
+                status : 404,
+                message : "seat not found"
+            }
+        }
         
         // process.exit()
     } catch(err){
