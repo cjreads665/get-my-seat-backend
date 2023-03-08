@@ -8,7 +8,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", async (req: Request, res: Response) => {
-    let k= await ScrapController(6715741541);
+  let test = 6116590703; //6715741541 //6116590703 //6316590028
+    let k= await ScrapController(test);
     console.log(k);
     // res.json(k)
     res.send("Server for seat featching");
