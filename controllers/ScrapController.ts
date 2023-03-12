@@ -1,5 +1,15 @@
 import puppeteer from "puppeteer";
 
+interface SeatStatus {
+  currentStatus: string;
+  bookingStatus: string;
+  coachNumber: string;
+}
+
+interface AllSeats {
+  status: SeatStatus[];
+}
+
 function getSeatPosition(seatNumber: number): string {
   if (seatNumber % 8 === 1 || seatNumber % 8 === 4) {
     return "side lower";
@@ -42,7 +52,7 @@ export default (async function (pnr: number) {
       //    */
 
       //   //this will remain an array of the text inside "current status"
-      //   const currentStatus = 
+      //   const currentStatus =
       //   //replaced the promise.all with aysnc await inside map function. the old code is below
       //     currentStatusElements?.map(async (element) => {
       //       return await element.evaluate((el) => el.textContent);
@@ -50,40 +60,52 @@ export default (async function (pnr: number) {
 
       //     console.log(currentStatus);
       // } else{
-        const currentSeats = await page.$$("table tr td");
-        // select the table you want to scrape
+      const tableData = await page.$$("table tr td");
+      // select the table you want to scrape
 
-        /**
+      /**
          * const currentStatus = await Promise.all(
           currentStatusElements?.map((element) => {
             return element.evaluate((el) => el.textContent);
           })
         );
          */
-        if(currentSeats){
-            const text = await Promise.all([currentSeats[1].evaluate((node)=>node.innerText),currentSeats[2].evaluate((node)=>node.innerText)]);
-            console.log(text);
-        }
+      const allSeats: AllSeats = {
+        status: [
+          // [ 'CNF S3 65', 'CNF S3 65', '0' ] currrent status, booking status, coach number
+        ],
+      };
+      if (tableData) {
+        // const text = await Promise.all([
+        //   currentSeats[1].evaluate((node) => node.innerText), //current status
+        //   currentSeats[2].evaluate((node) => node.innerText), //booking status
+        // ]);
+        // console.log(text);
+        // console.log(currentSeats.length);
+        for (let i = 0; i < tableData.length; i = i + 4) {
+          let status = await Promise.all([
+            tableData[i + 1]?.evaluate((node) => node.innerText),
+            tableData[i + 2]?.evaluate((node) => node.innerText),
+            tableData[i + 3]?.evaluate((node) => node.innerText),
+          ]);
+          // console.log(status[0].includes("\n"));
+          //preventing failed pages to load
+          if (status[0].includes("\n")) {
+            return {
+              status: 404,
+              message: "seat not found",
+            };
+          }
+          //storing all all the seat status
+          const seatStatus: SeatStatus = {
+            currentStatus: status[0],
+            bookingStatus: status[1],
+            coachNumber: status[2],
+          };
 
-        // const table = await page.$("table");
-  
-        // if (table) {
-        //   // Check if the table is not null
-        //   // get all the rows in the table
-        //   const rows = await table.$$("tr");
-  
-        //   // loop through each row and get the text inside the td tags
-        //   for (const row of rows) {
-        //     const cells = await row.$$("td");
-        //     for (const cell of cells) {
-        //       const text = await cell.evaluate((node) => node.innerText);
-        //       console.log(text);
-        //     }
-        //   }
-        // } else {
-        //   console.log("Table not found.");
-        // }
-      
+          allSeats.status.push(seatStatus);
+        }
+      }
 
       /**
        * for confirmed tickets - sometimes it is CNF or CNF S5 14 - need to figure out a solution
@@ -93,8 +115,6 @@ export default (async function (pnr: number) {
        * if the chart is prepared and the status is wl, do not calculate. send the status
        */
 
-     
-
       /**
        * there are two scenarios
        * 1. confirm-c is CNF if the ticket is already confirmed
@@ -102,26 +122,21 @@ export default (async function (pnr: number) {
        * confirm-c gives the current status
        * booking stat
        */
+      return allSeats;
     } catch (err) {
-      // console.log(5);
-      await browser.close();
-      return {
-        status: 404,
-        message: "seat not found",
-      };
+      console.log(`the error is - ${err}`);
     }
+    await browser.close();
+    return {
+      status: 404,
+      message: "seat not found",
+    };
 
     // process.exit()
   } catch (err) {
     console.log("error" + err);
   }
 });
-
-
-
-
-
-
 
 /**
  *           
@@ -144,3 +159,21 @@ Therefore, we should continue using Promise.all in this case to get the text con
           })
         );
  */
+// const table = await page.$("table");
+
+// if (table) {
+//   // Check if the table is not null
+//   // get all the rows in the table
+//   const rows = await table.$$("tr");
+
+//   // loop through each row and get the text inside the td tags
+//   for (const row of rows) {
+//     const cells = await row.$$("td");
+//     for (const cell of cells) {
+//       const text = await cell.evaluate((node) => node.innerText);
+//       console.log(text);
+//     }
+//   }
+// } else {
+//   console.log("Table not found.");
+// }
