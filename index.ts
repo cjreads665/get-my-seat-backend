@@ -19,6 +19,7 @@ app.post("/get-status", async (req: Request, res: Response) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   const {pnr} = req.body
+  // let test = 6116590703; //6715741541 //6116590703 //6316590028
   console.log(pnr);
   let result= await ScrapController(pnr);
   console.log(result);
