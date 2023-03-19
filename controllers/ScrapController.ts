@@ -4,6 +4,7 @@ interface SeatStatus {
   currentStatus: string;
   bookingStatus: string;
   coachNumber: string;
+  seatType : string;
 }
 
 interface AllSeats {
@@ -96,11 +97,14 @@ export default (async function (pnr: number) {
               message: "seat not found",
             };
           }
+          let fromCurrent= parseInt(status[0].split(" ")[2])
+          
           //storing all all the seat status
           const seatStatus: SeatStatus = {
             currentStatus: status[0],
             bookingStatus: status[1],
             coachNumber: status[2],
+            seatType : getSeatPosition(fromCurrent)
           };
 
           allSeats.status.push(seatStatus);

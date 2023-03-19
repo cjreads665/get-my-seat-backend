@@ -10,7 +10,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", async (req: Request, res: Response) => {
-
     res.send("Server for seat featching");
 });
 
@@ -23,7 +22,7 @@ app.post("/get-status", async (req: Request, res: Response) => {
   console.log(pnr);
   let result= await ScrapController(pnr);
   console.log(result);
-  if(result?.status===404){
+  if(result?.status===404 || result===undefined){
     res.sendStatus(404);
   } else{
     res.json(result)
